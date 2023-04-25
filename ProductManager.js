@@ -1,30 +1,111 @@
+const fs = require('fs')
+
 class ProductManager {
 
-    constructor() {
+    constructor(path) {
         this.products = []
+        this.path = path
+        this.init(path)
     }
 
-    addProduct({title, description, price, thumbnail, stock}) {
-        let id
-        if (this.products.length===0) {
-            id = 1
+    init(path) {
+        let file = fs.existsSync(this.path)
+        if (!file) {
+            fs.writeFileSync(path, '[]')
+            console.log('file created at path: ' + path)
+            return 'file created at path: ' + path
         } else {
-            id = this.products[this.products.length-1].id+1
+            this.products = JSON.parse(fs.readFileSync(path, 'UTF-8'))
+            console.log('data recovered')
+            return 'data recovered'
         }
-        let product = {title, description, price, thumbnail, stock, id}       
-        this.products.push(product)
+    }
+
+    async addProduct({ title, description, price, thumbnail, stock }) {
+        try {
+            let id
+            if (this.products.length === 0) {
+                id = 1
+            } else {
+                id = this.products[this.products.length - 1].id + 1
+            }
+            stock = stock ?? 0
+            let product = { title, description, price, thumbnail, stock, id }
+            this.products.push(product)
+            let products_json = JSON.stringify(this.products, null, 2)
+            await fs.promises.writeFile(this.path, products_json)
+            console.log('product id: ' + product.id)
+            return 'product id: ' + product.id
+        }
+        catch (err) {
+            console.log('addProduct: error')
+            return 'addProduct: error'
+        }
     }
 
     getProducts() {
-        console.log(this.products)
-        return this.products
+        try {
+            if (this.products.length === 0) {
+                console.log('Not found')
+                return this.products
+            }
+            return this.products
+        }
+        catch (err) {
+            console.log('getProduct: error')
+            return 'getProduct: error'
+        }
+
     }
 
     getProductById(id) {
-        let product = this.products.find(p => p.id===id)
-        product = product ?? 'Not Found'
-        console.log(product)
-        return product
+        try {
+            let product = this.products.find(p => p.id === id)
+            product = product ?? 'Not Found'
+            return product
+        }
+        catch (err) {
+            console.log('getProductById: error')
+            return 'getProductById: error'
+        }
+
+    }
+
+    async updateProduct(id, data) {
+        try {
+            let product = this.getProductById(id)
+            if (product === 'Not Found') {
+                console.log(product)
+                return product
+            }
+            for (let prop in data) {
+                product[prop] = data[prop]
+            }
+            let data_json = JSON.stringify(this.products, null, 2)
+            await fs.promises.writeFile(this.path, data_json)
+            console.log('updateProduct: done')
+            return 'updateProduct: done'
+        }
+        catch (err) {
+            console.log(err)
+            return 'updateProduct: error'
+        }
+    }
+
+    async deleteProduct(id) {
+        try {
+            this.products = this.products.filter(p => p.id !== id)
+            let data_json = JSON.stringify(this.products, null, 2)
+            await fs.promises.writeFile(this.path, data_json)
+            console.log('deleteProduct: done')
+            return 'deleteProduct: done'
+        }
+        catch (err) {
+            console.log(err)
+            return 'deleteProduct: error'
+        }
     }
 
 }
+
+module.exports = ProductManager
