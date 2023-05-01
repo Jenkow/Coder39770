@@ -1,6 +1,7 @@
-const ProductManager = require('./ProductManager')
+import ProductManager from './ProductManager.js'
+import CartManager from './CartManager.js'
 
-async function manager() {
+async function p_manager() {
     let manager = new ProductManager('./products.json')
     await manager.addProduct({ title: 'vaper', description: 'cigarrillo electronico', price: 10000 })
     await manager.addProduct({ title: 'rtx 3080', description: 'placa de video', price: 350000, stock: 3 })
@@ -18,4 +19,15 @@ async function manager() {
     await manager.getProducts()
 }
 
-manager()
+async function c_manager() {
+    let manager = new CartManager('./carts.json')
+    await manager.addCart([{id:2, quantity:3}, {id:5, quantity:1}])
+    await manager.addCart([{id:1, quantity:6}, {id:3, quantity:4}])
+    await manager.addCart([{id:8, quantity:4}, {id:5, quantity:1}])
+    await manager.addCart([{id:9, quantity:6}, {id:7, quantity:2}])
+    console.log(manager.getCartById(2))
+    await manager.getCarts()
+}
+
+p_manager()
+c_manager()
