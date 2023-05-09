@@ -9,14 +9,14 @@ let products_function = async (req, res) => {
     let limit = req.query.limit ?? await manager.getProducts().length
     let products = (await manager.getProducts()).slice(0, limit)
     if (products.length > 0) {
-        return res.send({
-            succes: true,
+        return res.json({
+            status: 200,
             products
         })
     } else {
-        return res.send({
-            succes: false,
-            products: 'not found'
+        return res.json({
+            status: 404,
+            response: 'not found'
         })
     }
 }
@@ -28,14 +28,14 @@ let productById_function = (req, res) => {
     let id = Number(req.params.pid)
     let one = manager.getProductById(id)
     if (one) {
-        return res.send({
-            succes: 'true',
+        return res.json({
+            status: 200,
             response: one
         })
     } else {
-        return res.send({
-            succes: 'false',
-            response: {}
+        return res.json({
+            status: 404,
+            response: 'not found'
         })
     }
 

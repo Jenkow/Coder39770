@@ -1,21 +1,21 @@
 import {Router} from 'express';
 import CartManager from '../CartManager.js'
-let c_manager = new CartManager('./carts.json')
+let manager = new CartManager('./carts.json')
 
 const router = Router()
 
 let carts_route = '/'
 let carts_function = (req, res) => {
-    let carts = c_manager.getCarts()
+    let carts = manager.getCarts()
     if (carts.length > 0) {
-        return res.send({
-            succes: true,
+        return res.json({
+            status: 200,
             carts
         })
     } else {
-        return res.send({
-            succes: false,
-            products: 'not found'
+        return res.json({
+            status: 404,
+            response: 'not found'
         })
     }
 }
@@ -25,16 +25,16 @@ router.get(carts_route, carts_function)
 let cartById_route = '/:cid'
 let cartById_function = (req, res) => {
     let id = Number(req.params.cid)
-    let one = c_manager.getCartById(id)
+    let one = manager.getCartById(id)
     if (one) {
-        return res.send({
-            succes: 'true',
+        return res.json({
+            status: 200,
             response: one
         })
     } else {
-        return res.send({
-            succes: 'false',
-            response: {}
+        return res.json({
+            status: 404,
+            response: 'not found'
         })
     }
 
@@ -47,7 +47,7 @@ router.post(
     '/',
     async (req, res) => {
         try {
-            let cart = await c_manager.addCart([])
+            let cart = await manager.addCart([])
             return res.json({
                 status: 201,
                 cart: cart.id,
@@ -76,7 +76,7 @@ router.put(
                     id: Number(req.params.pid),
                     units: Number(req.params.units)
                 }
-                await c_manager.updateCart(cid, data)
+                await manager.updateCart(cid, data)
                 return res.json({
                     status: 200,
                     cid,
@@ -105,7 +105,7 @@ router.delete(
                     id: Number(req.params.pid),
                     units: -Number(req.params.units)
                 }
-                await c_manager.updateCart(cid, data)
+                await manager.updateCart(cid, data)
                 return res.json({
                     status: 200,
                     cid,
